@@ -20,4 +20,13 @@ class Product extends Model
     {
         return $this->hasOne(ProductDiscount::class);
     }
+
+    public function getDiscountedPriceAttribute()
+    {
+        if (!$this->discount) return $this->price;
+
+        return $this->discount->type === 'percent'
+            ? $this->price * (1 - $this->discount->discount / 100)
+            : $this->price - $this->discount->discount;
+    }
 }
