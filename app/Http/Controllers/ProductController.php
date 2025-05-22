@@ -198,4 +198,31 @@ class ProductController extends Controller
 
         return response()->json(['message' => 'Product deleted successfully.']);
     }
+
+    /**
+     * Display the specified product by slug.
+     *
+     * @param  string  $slug
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function showBySlug($slug)
+    {
+        $product = Product::with(['images', 'discount'])->where('slug', $slug)->firstOrFail();
+
+        return response()->json([
+            'id' => (string) $product->id,
+            'name' => $product->name,
+            'description' => $product->description,
+            'slug' => $product->slug,
+            'price' => [
+                'full' => $product->price,
+                'discounted' => $product->discounted_price,
+            ],
+            'discount' => $product->discount ? [
+                'type' => $product->discount->type,
+                'amount' => $product->discount->discount,
+            ] : null,
+            'images' => $product->images->pluck('path'),
+        ]);
+    }
 }
